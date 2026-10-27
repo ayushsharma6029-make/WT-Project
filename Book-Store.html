@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harry Potter Books Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ===== EASY COLOR CHANGES: edit these ===== */
+  :root{
+    --ink:#161022; --plum:#2a1b3d; --panel:#21152f; --gold:#e0b04f; --gold-soft:#f0d28a;
+    --text:#f2ecf8; --muted:#b8aac9; --line:#3d2c52;
+    --head:'Cinzel',Georgia,serif; --body:'Cormorant Garamond',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:19px;line-height:1.5}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+  header{position:sticky;top:0;z-index:20;background:rgba(22,16,34,.96);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 5vw}
+  .logo{font-family:var(--head);font-weight:700;color:var(--gold);font-size:1.15rem;letter-spacing:.04em;text-decoration:none}
+  .cart-btn{background:none;border:1px solid var(--gold);color:var(--gold-soft);font:600 1rem var(--body);
+    padding:6px 14px;border-radius:999px;cursor:pointer}
+  .cart-btn:hover{background:var(--gold);color:var(--ink)}
+
+  .hero{padding:11vh 5vw 8vh;text-align:center;
+    background:radial-gradient(ellipse at 50% 0%,#3b2557 0%,var(--ink) 70%)}
+  .hero h1{font-family:var(--head);font-size:clamp(2.2rem,7vw,4.6rem);line-height:1.1;color:var(--gold-soft);letter-spacing:.03em}
+  .hero p{max-width:34rem;margin:18px auto 28px;color:var(--muted);font-style:italic;font-size:1.25rem}
+  .hero a.cta{display:inline-block;background:var(--gold);color:var(--ink);font-family:var(--head);font-weight:700;
+    padding:12px 28px;border-radius:4px;text-decoration:none}
+
+  main{padding:48px 5vw 70px;max-width:1280px;margin:auto}
+  .tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:28px}
+  .cats{display:flex;flex-wrap:wrap;gap:8px}
+  .cats button{background:var(--panel);color:var(--text);border:1px solid var(--line);font:600 .95rem var(--body);
+    padding:7px 15px;border-radius:999px;cursor:pointer}
+  .cats button.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .search{background:var(--panel);border:1px solid var(--line);color:var(--text);font:1rem var(--body);
+    padding:8px 14px;border-radius:999px;min-width:220px}
+  h2{font-family:var(--head);font-size:1.6rem;color:var(--gold-soft);margin-bottom:6px}
+  #count{color:var(--muted);margin-bottom:22px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:30px 22px}
+  .book{display:flex;flex-direction:column}
+  .cover{aspect-ratio:2/3;border-radius:3px 8px 8px 3px;overflow:hidden;position:relative;
+    box-shadow:-5px 6px 0 rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:space-between;
+    align-items:center;text-align:center;padding:16px 12px;color:#fff}
+  .cover::before{content:"";position:absolute;left:0;top:0;bottom:0;width:9px;background:rgba(0,0,0,.28)}
+  .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .cover .mark{font-size:2rem;color:var(--gold-soft);margin-top:6px}
+  .cover .t{font-family:var(--head);font-weight:700;font-size:.95rem;line-height:1.25;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .cover .a{font-size:.85rem;color:var(--gold-soft)}
+  .info{padding-top:12px;display:flex;flex-direction:column;gap:2px;flex:1}
+  .info .cat{color:var(--muted);font-size:.85rem}
+  .info .name{font-weight:600;line-height:1.25}
+  .row{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px}
+  .price{font-family:var(--head);color:var(--gold);font-weight:700}
+  .add{background:none;border:1px solid var(--gold);color:var(--gold-soft);font:600 .9rem var(--body);
+    padding:5px 12px;border-radius:4px;cursor:pointer}
+  .add:hover{background:var(--gold);color:var(--ink)}
+
+  #drawer{position:fixed;top:0;right:0;height:100%;width:min(360px,100%);background:var(--panel);
+    border-left:1px solid var(--line);z-index:30;padding:22px;transform:translateX(100%);
+    transition:transform .25s;overflow:auto}
+  #drawer.open{transform:none}
+  #drawer h3{font-family:var(--head);color:var(--gold-soft);margin-bottom:14px;display:flex;justify-content:space-between}
+  #drawer h3 button{background:none;border:0;color:var(--text);font-size:1.4rem;cursor:pointer}
+  .ci{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .ci button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.9rem;text-decoration:underline}
+  .total{display:flex;justify-content:space-between;margin-top:16px;font-family:var(--head);color:var(--gold)}
+  .empty{color:var(--muted);font-style:italic}
+
+  footer{border-top:1px solid var(--line);padding:30px 5vw;text-align:center;color:var(--muted);font-size:.95rem}
+  @media (prefers-reduced-motion:reduce){#drawer{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#top">Harry Potter Books Store</a>
+  <button class="cart-btn" id="cartBtn" aria-label="Open cart">Cart (<span id="cartCount">0</span>)</button>
+</header>
+
+<section class="hero" id="top">
+  <h1>Harry Potter Books Store</h1>
+  <p>Every story from the wizarding world, from the first letter from Hogwarts to the plays and companion books.</p>
+  <a class="cta" href="#shop">Browse books</a>
+</section>
+
+<main id="shop">
+  <h2>Our books</h2>
+  <p id="count"></p>
+  <div class="tools">
+    <div class="cats" id="cats" role="group" aria-label="Categories"></div>
+    <input class="search" id="search" type="search" placeholder="Search books" aria-label="Search books">
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<aside id="drawer" aria-label="Shopping cart">
+  <h3>Your cart <button id="closeCart" aria-label="Close cart">&times;</button></h3>
+  <div id="cartItems"></div>
+  <div class="total"><span>Total</span><span id="cartTotal"></span></div>
+</aside>
+
+<footer>&copy; <span id="yr"></span> Harry Potter Books Store. Prices and titles are sample content; edit them in the BOOKS list.</footer>
+
+<script>
+/* =====================================================================
+   HOW TO CHANGE THINGS
+   1. Store name / currency: edit CURRENCY below and the text in the HTML.
+   2. Add or edit a book: change the BOOKS list below.
+   3. Real book cover photos: put your image file next to this HTML file
+      (e.g. images/book1.jpg) and set  img: "images/book1.jpg"  on that book.
+      If img is left empty, a colored cover is drawn automatically.
+   4. Add a category: just use a new category name in a book.
+   ===================================================================== */
+const CURRENCY = "$";
+
+const BOOKS = [
+  // Main series
+  { title:"Harry Potter and the Philosopher's Stone", author:"J.K. Rowling", category:"Main Series", price:12.99, color:"#7a1f2b", img:"" },
+  { title:"Harry Potter and the Chamber of Secrets", author:"J.K. Rowling", category:"Main Series", price:12.99, color:"#1f5a3a", img:"" },
+  { title:"Harry Potter and the Prisoner of Azkaban", author:"J.K. Rowling", category:"Main Series", price:13.49, color:"#2a3f7a", img:"" },
+  { title:"Harry Potter and the Goblet of Fire", author:"J.K. Rowling", category:"Main Series", price:14.99, color:"#8a5a12", img:"" },
+  { title:"Harry Potter and the Order of the Phoenix", author:"J.K. Rowling", category:"Main Series", price:15.99, color:"#6b2a6e", img:"" },
+  { title:"Harry Potter and the Half-Blood Prince", author:"J.K. Rowling", category:"Main Series", price:14.99, color:"#1d4e63", img:"" },
+  { title:"Harry Potter and the Deathly Hallows", author:"J.K. Rowling", category:"Main Series", price:15.99, color:"#3a3a3a", img:"" },
+
+  // Illustrated editions
+  { title:"Philosopher's Stone: Illustrated Edition", author:"J.K. Rowling, Jim Kay", category:"Illustrated Editions", price:34.99, color:"#9a3a1f", img:"" },
+  { title:"Chamber of Secrets: Illustrated Edition", author:"J.K. Rowling, Jim Kay", category:"Illustrated Editions", price:34.99, color:"#2f6d52", img:"" },
+  { title:"Prisoner of Azkaban: Illustrated Edition", author:"J.K. Rowling, Jim Kay", category:"Illustrated Editions", price:36.99, color:"#3d4f9a", img:"" },
+  { title:"Goblet of Fire: Illustrated Edition", author:"J.K. Rowling, Jim Kay", category:"Illustrated Editions", price:39.99, color:"#a8731a", img:"" },
+  { title:"Order of the Phoenix: Illustrated Edition", author:"J.K. Rowling, Jim Kay", category:"Illustrated Editions", price:39.99, color:"#80388a", img:"" },
+
+  // Companion books
+  { title:"Fantastic Beasts and Where to Find Them", author:"J.K. Rowling", category:"Companion Books", price:9.99, color:"#5b4a2a", img:"" },
+  { title:"Quidditch Through the Ages", author:"J.K. Rowling", category:"Companion Books", price:9.99, color:"#1f3a6b", img:"" },
+  { title:"The Tales of Beedle the Bard", author:"J.K. Rowling", category:"Companion Books", price:10.99, color:"#6a2a2a", img:"" },
+  { title:"Harry Potter: A History of Magic", author:"British Library", category:"Companion Books", price:24.99, color:"#4a2f5e", img:"" },
+
+  // Plays and screenplays
+  { title:"Harry Potter and the Cursed Child", author:"J.K. Rowling, John Tiffany, Jack Thorne", category:"Plays & Screenplays", price:13.99, color:"#12485a", img:"" },
+  { title:"Fantastic Beasts: The Original Screenplay", author:"J.K. Rowling", category:"Plays & Screenplays", price:13.99, color:"#4d5a2a", img:"" },
+  { title:"Fantastic Beasts: The Crimes of Grindelwald", author:"J.K. Rowling", category:"Plays & Screenplays", price:13.99, color:"#5a2a40", img:"" },
+  { title:"Fantastic Beasts: The Secrets of Dumbledore", author:"J.K. Rowling", category:"Plays & Screenplays", price:13.99, color:"#2a4a5a", img:"" },
+
+  // Box sets
+  { title:"Harry Potter Complete 7-Book Box Set", author:"J.K. Rowling", category:"Box Sets", price:89.99, color:"#5c1a24", img:"" },
+  { title:"Hogwarts Library Box Set", author:"J.K. Rowling", category:"Box Sets", price:24.99, color:"#243a5c", img:"" }
+];
+
+/* ISBNs used to fetch real cover pictures online (needs internet).
+   To add or fix one, add  isbn:"978..."  to a book above, or edit this list. */
+const ISBNS = {
+  "Harry Potter and the Philosopher's Stone":"9780747532699",
+  "Harry Potter and the Chamber of Secrets":"9780747538493",
+  "Harry Potter and the Prisoner of Azkaban":"9780747542155",
+  "Harry Potter and the Goblet of Fire":"9780747546245",
+  "Harry Potter and the Order of the Phoenix":"9780747551003",
+  "Harry Potter and the Half-Blood Prince":"9780747581086",
+  "Harry Potter and the Deathly Hallows":"9780747591054",
+  "Philosopher's Stone: Illustrated Edition":"9781408845646",
+  "Chamber of Secrets: Illustrated Edition":"9781408845653",
+  "Prisoner of Azkaban: Illustrated Edition":"9781408845660",
+  "Goblet of Fire: Illustrated Edition":"9781408845677"
+};
+
+const state = { cat:"All", q:"", cart:[] };
+const $ = id => document.getElementById(id);
+const money = n => CURRENCY + n.toFixed(2);
+
+function renderCats(){
+  const cats = ["All", ...new Set(BOOKS.map(b => b.category))];
+  $("cats").innerHTML = "";
+  cats.forEach(c => {
+    const b = document.createElement("button");
+    b.textContent = c;
+    b.className = c === state.cat ? "on" : "";
+    b.setAttribute("aria-pressed", c === state.cat);
+    b.onclick = () => { state.cat = c; renderCats(); renderBooks(); };
+    $("cats").appendChild(b);
+  });
+}
+
+function renderBooks(){
+  const q = state.q.toLowerCase();
+  const list = BOOKS.map((b,i) => ({...b,i})).filter(b =>
+    (state.cat === "All" || b.category === state.cat) &&
+    (b.title + " " + b.author).toLowerCase().includes(q));
+  $("count").textContent = list.length + (list.length === 1 ? " book" : " books") +
+    (state.cat === "All" ? "" : " in " + state.cat);
+  $("grid").innerHTML = list.length ? "" : '<p class="empty">No books match your search.</p>';
+  list.forEach(b => {
+    const el = document.createElement("article");
+    el.className = "book";
+    const cover = `<span class="mark" aria-hidden="true">&#9889;</span><span class="t">${b.title}</span><span class="a">${b.author.split(",")[0]}</span>`;
+    el.innerHTML = `
+      <div class="cover" style="background:linear-gradient(160deg,${b.color},#120c1c)">${cover}</div>
+      <div class="info">
+        <span class="cat">${b.category}</span>
+        <span class="name">${b.title}</span>
+        <div class="row"><span class="price">${money(b.price)}</span>
+        <button class="add" data-i="${b.i}">Add to cart</button></div>
+      </div>`;
+    $("grid").appendChild(el);
+    loadCover(el.querySelector(".cover"), b);
+  });
+}
+
+/* Tries: 1) your own image (img), 2) Open Library cover by ISBN.
+   If neither loads, the drawn cover stays visible. */
+function loadCover(box, b){
+  const isbn = b.isbn || ISBNS[b.title];
+  const srcs = [b.img, isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false` : ""].filter(Boolean);
+  (function tryNext(){
+    if (!srcs.length) return;
+    const im = new Image();
+    im.alt = "Cover of " + b.title;
+    im.onload = () => { if (im.naturalWidth > 1) box.appendChild(im); else tryNext(); };
+    im.onerror = tryNext;
+    im.src = srcs.shift();
+  })();
+}
+
+function renderCart(){
+  $("cartCount").textContent = state.cart.length;
+  $("cartItems").innerHTML = state.cart.length ? "" : '<p class="empty">Your cart is empty. Add a book to start.</p>';
+  state.cart.forEach((i,idx) => {
+    const d = document.createElement("div");
+    d.className = "ci";
+    d.innerHTML = `<span>${BOOKS[i].title}<br><small>${money(BOOKS[i].price)}</small></span>
+      <button data-r="${idx}">Remove</button>`;
+    $("cartItems").appendChild(d);
+  });
+  $("cartTotal").textContent = money(state.cart.reduce((s,i) => s + BOOKS[i].price, 0));
+}
+
+$("grid").addEventListener("click", e => {
+  const i = e.target.dataset.i;
+  if (i !== undefined){ state.cart.push(+i); renderCart(); $("drawer").classList.add("open"); }
+});
+$("cartItems").addEventListener("click", e => {
+  const r = e.target.dataset.r;
+  if (r !== undefined){ state.cart.splice(+r,1); renderCart(); }
+});
+$("search").addEventListener("input", e => { state.q = e.target.value; renderBooks(); });
+$("cartBtn").onclick = () => $("drawer").classList.toggle("open");
+$("closeCart").onclick = () => $("drawer").classList.remove("open");
+$("yr").textContent = new Date().getFullYear();
+
+renderCats(); renderBooks(); renderCart();
+</script>
+</body>
+</html>
